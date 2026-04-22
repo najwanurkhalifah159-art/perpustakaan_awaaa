@@ -18,6 +18,8 @@ class Book extends Model
         'stock',
         'category',
         'cover_image',
+        'cover_image_data',
+        'cover_image_mime',
     ];
 
     protected $appends = [
@@ -35,10 +37,26 @@ class Book extends Model
     public function getCoverImageUrlAttribute(): ?string
     {
         if (!$this->cover_image) {
+            if ($this->cover_image_data) {
+                $mime = $this->cover_image_mime ?: 'image/jpeg';
+                return 'data:' . $mime . ';base64,' . $this->cover_image_data;
+            }
+
             return null;
         }
 
-        return Storage::disk($this->coverDisk())->url($this->cover_image);
+        if ($this->cover_image_data) {
+            $mime = $this->cover_image_mime ?: 'image/jpeg';
+            return 'data:' . $mime . ';base64,' . $this->cover_image_data;
+        }
+
+        $disk = $this->coverDisk();
+
+        if (Storage::disk($disk)->exists($this->cover_image)) {
+            return Storage::disk($disk)->url($this->cover_image);
+        }
+
+        return null;
     }
 
     private function coverDisk(): string

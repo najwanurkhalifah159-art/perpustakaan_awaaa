@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Str;
 
+$sqliteDatabase = env('DB_DATABASE');
+
+if (empty($sqliteDatabase) || $sqliteDatabase === 'laravel') {
+    $sqliteDatabase = database_path('database.sqlite');
+} elseif (!str_contains($sqliteDatabase, DIRECTORY_SEPARATOR) && !str_ends_with($sqliteDatabase, '.sqlite')) {
+    $sqliteDatabase = database_path('database.sqlite');
+} elseif (!preg_match('/^(?:[A-Za-z]:\\\\|\\\\|\/)/', $sqliteDatabase)) {
+    $sqliteDatabase = database_path($sqliteDatabase);
+}
+
 return [
 
     /*
@@ -34,7 +44,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => $sqliteDatabase,
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

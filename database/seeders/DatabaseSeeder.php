@@ -20,6 +20,20 @@ class DatabaseSeeder extends Seeder
         return $disk === 'local' ? 'public' : $disk;
     }
 
+    private function coverDataFromPath(string $path): array
+    {
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists($path)) {
+            return [];
+        }
+
+        return [
+            'cover_image_data' => base64_encode($disk->get($path)),
+            'cover_image_mime' => $disk->mimeType($path) ?: 'image/jpeg',
+        ];
+    }
+
     public function run(): void
     {
         $seededCoverImages = $this->syncSeededCoverImages();
@@ -77,6 +91,7 @@ class DatabaseSeeder extends Seeder
             foreach ($userBooks as $index => $data) {
                 if (isset($seededCoverImages[$index])) {
                     $data['cover_image'] = $seededCoverImages[$index];
+                    $data = array_merge($data, $this->coverDataFromPath($seededCoverImages[$index]));
                 }
 
                 Book::create($data);
@@ -93,6 +108,7 @@ class DatabaseSeeder extends Seeder
 
                 if (isset($seededCoverImages[$coverIndex])) {
                     $data['cover_image'] = $seededCoverImages[$coverIndex];
+                    $data = array_merge($data, $this->coverDataFromPath($seededCoverImages[$coverIndex]));
                 }
 
                 Book::create($data);
@@ -161,6 +177,7 @@ class DatabaseSeeder extends Seeder
 
             $book->update([
                 'cover_image' => $newCover,
+                ...$this->coverDataFromPath($newCover),
             ]);
         }
     }

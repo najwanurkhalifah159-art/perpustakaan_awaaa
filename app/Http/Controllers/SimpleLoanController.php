@@ -16,6 +16,14 @@ class SimpleLoanController extends Controller
         return $disk === 'local' ? 'public' : $disk;
     }
 
+    private function coverDataFromUpload(\Illuminate\Http\UploadedFile $file): array
+    {
+        return [
+            'cover_image_data' => base64_encode(file_get_contents($file->getRealPath())),
+            'cover_image_mime' => $file->getMimeType() ?: $file->getClientMimeType() ?: 'image/jpeg',
+        ];
+    }
+
     public function buku()
     {
         $books = Book::all();
@@ -47,6 +55,7 @@ class SimpleLoanController extends Controller
             }
 
             $payload['cover_image'] = $request->file('cover_image')->store('books', $this->coverDisk());
+            $payload = array_merge($payload, $this->coverDataFromUpload($request->file('cover_image')));
         }
 
         $book->update($payload);
@@ -73,6 +82,7 @@ class SimpleLoanController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $payload['cover_image'] = $request->file('cover_image')->store('books', $this->coverDisk());
+            $payload = array_merge($payload, $this->coverDataFromUpload($request->file('cover_image')));
         }
 
         Book::create($payload);
