@@ -36,10 +36,10 @@ class SimpleLoanController extends Controller
 
         if ($request->hasFile('cover_image')) {
             if ($book->cover_image) {
-                Storage::disk('public')->delete($book->cover_image);
+                Storage::delete($book->cover_image);
             }
 
-            $payload['cover_image'] = $request->file('cover_image')->store('books', 'public');
+            $payload['cover_image'] = $request->file('cover_image')->store('books');
         }
 
         $book->update($payload);
@@ -65,7 +65,7 @@ class SimpleLoanController extends Controller
         $payload = $request->only(['title', 'author', 'publisher', 'year', 'stock', 'category']);
 
         if ($request->hasFile('cover_image')) {
-            $payload['cover_image'] = $request->file('cover_image')->store('books', 'public');
+            $payload['cover_image'] = $request->file('cover_image')->store('books');
         }
 
         Book::create($payload);
@@ -214,7 +214,7 @@ class SimpleLoanController extends Controller
         }
 
         if ($book->cover_image) {
-            Storage::disk('public')->delete($book->cover_image);
+            Storage::delete($book->cover_image);
         }
 
         $book->delete();
