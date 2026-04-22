@@ -38,7 +38,13 @@ class Book extends Model
             return null;
         }
 
-        return Storage::disk(config('filesystems.cover_disk', config('filesystems.default', 'public')))
-            ->url($this->cover_image);
+        return Storage::disk($this->coverDisk())->url($this->cover_image);
+    }
+
+    private function coverDisk(): string
+    {
+        $disk = config('filesystems.default', 'public');
+
+        return $disk === 'local' ? 'public' : $disk;
     }
 }

@@ -15,7 +15,9 @@ class DatabaseSeeder extends Seeder
 
     private function coverDisk(): string
     {
-        return config('filesystems.cover_disk', config('filesystems.default', 'public'));
+        $disk = config('filesystems.default', 'public');
+
+        return $disk === 'local' ? 'public' : $disk;
     }
 
     public function run(): void

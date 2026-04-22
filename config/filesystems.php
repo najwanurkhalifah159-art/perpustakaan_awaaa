@@ -16,19 +16,6 @@ return [
     'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
-    |------------------------------------------------------------------
-    | Cover Images Disk
-    |------------------------------------------------------------------
-    |
-    | Book covers should prefer the cloud bucket when one is available.
-    | This bypasses any manual FILESYSTEM_DISK override that would send
-    | uploads back to ephemeral local storage.
-    |
-    */
-
-    'cover_disk' => env('AWS_BUCKET') ? 's3' : env('FILESYSTEM_DISK', 'public'),
-
-    /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------

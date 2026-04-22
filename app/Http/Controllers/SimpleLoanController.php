@@ -11,7 +11,9 @@ class SimpleLoanController extends Controller
 {
     private function coverDisk(): string
     {
-        return config('filesystems.cover_disk', config('filesystems.default', 'public'));
+        $disk = config('filesystems.default', 'public');
+
+        return $disk === 'local' ? 'public' : $disk;
     }
 
     public function buku()
