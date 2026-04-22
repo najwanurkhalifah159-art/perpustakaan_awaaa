@@ -38,7 +38,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah! Admin: admin@perpustakaan.local / admin | User: user@perpustakaan.local / user']);
+        return back()->withErrors(['email' => 'Email atau password salah! Admin: admin@example.com / admin | User: user@example.com / user']);
     }
 
     public function register(Request $request)

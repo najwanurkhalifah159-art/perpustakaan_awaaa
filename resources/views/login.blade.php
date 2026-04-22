@@ -61,7 +61,7 @@
                         </form>
 
                         <div class="mt-4 text-center">
-                            <small class="text-muted">Demo admin: admin@perpustakaan.local / admin</small>
+                            <small class="text-muted">Demo admin: admin@example.com / admin | Demo user: user@example.com / user</small>
                         </div>
                     </div>
                 </div>
