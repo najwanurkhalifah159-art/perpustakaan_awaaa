@@ -16,19 +16,6 @@ return [
     'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
-    |------------------------------------------------------------------
-    | Cover Image Disk
-    |------------------------------------------------------------------
-    |
-    | Cover buku harus disimpan di disk yang tahan deploy ulang.
-    | Jika bucket AWS tersedia, pakai S3/object storage. Kalau tidak,
-    | fallback ke disk yang dipakai lokal.
-    |
-    */
-
-    'cover_disk' => env('AWS_BUCKET') ? 's3' : env('FILESYSTEM_DISK', 'public'),
-
-    /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------

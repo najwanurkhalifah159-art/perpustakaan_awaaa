@@ -15,8 +15,7 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $coverDisk = config('filesystems.cover_disk', config('filesystems.default', 'public'));
-        $seededCoverImages = $this->syncSeededCoverImages($coverDisk);
+        $seededCoverImages = $this->syncSeededCoverImages();
 
         // Admin user
         User::firstOrCreate(
@@ -92,7 +91,7 @@ class DatabaseSeeder extends Seeder
                 Book::create($data);
             }
         } else {
-            $this->backfillBookCoverImages($seededCoverImages, $coverDisk);
+            $this->backfillBookCoverImages($seededCoverImages);
         }
 
         if (Loan::count() === 0) {
@@ -117,19 +116,15 @@ class DatabaseSeeder extends Seeder
      * Ambil cover gambar contoh yang sudah dibundel di storage lokal,
      * lalu salin ke disk cover yang aktif supaya file bertahan di cloud.
      */
-    private function syncSeededCoverImages(string $coverDisk): array
+    private function syncSeededCoverImages(): array
     {
         $seededCoverImages = collect(Storage::disk('public')->files('books'))
             ->filter(fn (string $path) => preg_match('/\.(jpg|jpeg|png|webp)$/i', $path))
             ->values();
 
         foreach ($seededCoverImages as $path) {
-            if ($coverDisk === 'public') {
-                continue;
-            }
-
-            if (!Storage::disk($coverDisk)->exists($path)) {
-                Storage::disk($coverDisk)->put($path, Storage::disk('public')->get($path));
+            if (!Storage::exists($path)) {
+                Storage::put($path, Storage::disk('public')->get($path));
             }
         }
 
@@ -139,13 +134,13 @@ class DatabaseSeeder extends Seeder
     /**
      * Isi cover yang kosong atau file cover-nya hilang dengan cover contoh.
      */
-    private function backfillBookCoverImages(array $seededCoverImages, string $coverDisk): void
+    private function backfillBookCoverImages(array $seededCoverImages): void
     {
         $books = Book::orderBy('id')->get();
 
         foreach ($books as $index => $book) {
             $coverImage = $book->cover_image;
-            $coverExists = $coverImage && Storage::disk($coverDisk)->exists($coverImage);
+            $coverExists = $coverImage && Storage::exists($coverImage);
 
             if ($coverExists || !isset($seededCoverImages[$index])) {
                 continue;
@@ -153,8 +148,8 @@ class DatabaseSeeder extends Seeder
 
             $newCover = $seededCoverImages[$index];
 
-            if ($coverDisk !== 'public' && !Storage::disk($coverDisk)->exists($newCover)) {
-                Storage::disk($coverDisk)->put($newCover, Storage::disk('public')->get($newCover));
+            if (!Storage::exists($newCover)) {
+                Storage::put($newCover, Storage::disk('public')->get($newCover));
             }
 
             $book->update([

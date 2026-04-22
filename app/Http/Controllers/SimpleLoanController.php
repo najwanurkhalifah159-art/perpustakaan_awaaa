@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class SimpleLoanController extends Controller
 {
-    private function coverDisk(): string
-    {
-        return config('filesystems.cover_disk', config('filesystems.default', 'public'));
-    }
 
     public function buku()
     {
@@ -41,10 +37,10 @@ class SimpleLoanController extends Controller
 
         if ($request->hasFile('cover_image')) {
             if ($book->cover_image) {
-                Storage::disk($this->coverDisk())->delete($book->cover_image);
+                Storage::delete($book->cover_image);
             }
 
-            $payload['cover_image'] = $request->file('cover_image')->store('books', $this->coverDisk());
+            $payload['cover_image'] = $request->file('cover_image')->store('books');
         }
 
         $book->update($payload);
@@ -70,7 +66,7 @@ class SimpleLoanController extends Controller
         $payload = $request->only(['title', 'author', 'publisher', 'year', 'stock', 'category']);
 
         if ($request->hasFile('cover_image')) {
-            $payload['cover_image'] = $request->file('cover_image')->store('books', $this->coverDisk());
+            $payload['cover_image'] = $request->file('cover_image')->store('books');
         }
 
         Book::create($payload);
@@ -219,7 +215,7 @@ class SimpleLoanController extends Controller
         }
 
         if ($book->cover_image) {
-            Storage::disk($this->coverDisk())->delete($book->cover_image);
+            Storage::delete($book->cover_image);
         }
 
         $book->delete();
