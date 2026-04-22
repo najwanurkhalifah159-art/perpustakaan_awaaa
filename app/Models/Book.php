@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\File;
 
 class Book extends Model
 {
@@ -37,6 +38,22 @@ class Book extends Model
             return null;
         }
 
-        return '/storage/' . ltrim($this->cover_image, '/');
+        $relativePath = ltrim($this->cover_image, '/');
+        $publicPath = public_path('storage/' . $relativePath);
+        $storagePath = storage_path('app/public/' . $relativePath);
+
+        // Jika file ada di storage aplikasi tetapi belum ada di public/storage,
+        // salin sekali supaya browser bisa membacanya lewat /storage.
+        if (!File::exists($publicPath) && File::exists($storagePath)) {
+            $publicDir = dirname($publicPath);
+
+            if (!File::isDirectory($publicDir)) {
+                File::makeDirectory($publicDir, 0755, true, true);
+            }
+
+            File::copy($storagePath, $publicPath);
+        }
+
+        return File::exists($publicPath) ? '/storage/' . $relativePath : null;
     }
 }
