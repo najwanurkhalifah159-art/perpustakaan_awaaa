@@ -15,9 +15,8 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $seededCoverImages = collect(Storage::disk('public')->files('books'))
-            ->filter(fn (string $path) => preg_match('/\.(jpg|jpeg|png|webp)$/i', $path))
-            ->values();
+        $coverDisk = config('filesystems.cover_disk', config('filesystems.default', 'public'));
+        $seededCoverImages = $this->syncSeededCoverImages($coverDisk);
 
         // Admin user
         User::firstOrCreate(
@@ -92,6 +91,8 @@ class DatabaseSeeder extends Seeder
 
                 Book::create($data);
             }
+        } else {
+            $this->backfillBookCoverImages($seededCoverImages, $coverDisk);
         }
 
         if (Loan::count() === 0) {
@@ -111,5 +112,54 @@ class DatabaseSeeder extends Seeder
             }
         }
     }
-}
 
+    /**
+     * Ambil cover gambar contoh yang sudah dibundel di storage lokal,
+     * lalu salin ke disk cover yang aktif supaya file bertahan di cloud.
+     */
+    private function syncSeededCoverImages(string $coverDisk): array
+    {
+        $seededCoverImages = collect(Storage::disk('public')->files('books'))
+            ->filter(fn (string $path) => preg_match('/\.(jpg|jpeg|png|webp)$/i', $path))
+            ->values();
+
+        foreach ($seededCoverImages as $path) {
+            if ($coverDisk === 'public') {
+                continue;
+            }
+
+            if (!Storage::disk($coverDisk)->exists($path)) {
+                Storage::disk($coverDisk)->put($path, Storage::disk('public')->get($path));
+            }
+        }
+
+        return $seededCoverImages->all();
+    }
+
+    /**
+     * Isi cover yang kosong atau file cover-nya hilang dengan cover contoh.
+     */
+    private function backfillBookCoverImages(array $seededCoverImages, string $coverDisk): void
+    {
+        $books = Book::orderBy('id')->get();
+
+        foreach ($books as $index => $book) {
+            $coverImage = $book->cover_image;
+            $coverExists = $coverImage && Storage::disk($coverDisk)->exists($coverImage);
+
+            if ($coverExists || !isset($seededCoverImages[$index])) {
+                continue;
+            }
+
+            $newCover = $seededCoverImages[$index];
+
+            if ($coverDisk !== 'public' && !Storage::disk($coverDisk)->exists($newCover)) {
+                Storage::disk($coverDisk)->put($newCover, Storage::disk('public')->get($newCover));
+            }
+
+            $book->update([
+                'cover_image' => $newCover,
+            ]);
+        }
+    }
+}

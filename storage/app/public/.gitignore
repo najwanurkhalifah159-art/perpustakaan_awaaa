@@ -1,2 +1,7 @@
 *
 !.gitignore
+!books/
+!books/*.jpg
+!books/*.jpeg
+!books/*.png
+!books/*.webp
