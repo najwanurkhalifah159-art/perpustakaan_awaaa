@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
+    private function coverDisk(): string
+    {
+        return config('filesystems.cover_disk', config('filesystems.default', 'public'));
+    }
+
     public function run(): void
     {
         $seededCoverImages = $this->syncSeededCoverImages();
@@ -123,8 +128,8 @@ class DatabaseSeeder extends Seeder
             ->values();
 
         foreach ($seededCoverImages as $path) {
-            if (!Storage::exists($path)) {
-                Storage::put($path, Storage::disk('public')->get($path));
+            if (!Storage::disk($this->coverDisk())->exists($path)) {
+                Storage::disk($this->coverDisk())->put($path, Storage::disk('public')->get($path));
             }
         }
 
@@ -140,7 +145,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($books as $index => $book) {
             $coverImage = $book->cover_image;
-            $coverExists = $coverImage && Storage::exists($coverImage);
+            $coverExists = $coverImage && Storage::disk($this->coverDisk())->exists($coverImage);
 
             if ($coverExists || !isset($seededCoverImages[$index])) {
                 continue;
@@ -148,8 +153,8 @@ class DatabaseSeeder extends Seeder
 
             $newCover = $seededCoverImages[$index];
 
-            if (!Storage::exists($newCover)) {
-                Storage::put($newCover, Storage::disk('public')->get($newCover));
+            if (!Storage::disk($this->coverDisk())->exists($newCover)) {
+                Storage::disk($this->coverDisk())->put($newCover, Storage::disk('public')->get($newCover));
             }
 
             $book->update([
