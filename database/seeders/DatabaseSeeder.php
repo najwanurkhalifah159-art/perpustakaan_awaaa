@@ -162,6 +162,10 @@ class DatabaseSeeder extends Seeder
         $books = Book::orderBy('id')->get();
 
         foreach ($books as $index => $book) {
+            if (!empty($book->cover_image_data)) {
+                continue;
+            }
+
             $coverImage = $book->cover_image;
             $coverExists = $coverImage && Storage::disk($this->coverDisk())->exists($coverImage);
 
