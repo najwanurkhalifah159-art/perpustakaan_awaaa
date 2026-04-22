@@ -1,0 +1,52 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --color-pink-primary: #FF1493;
+    --color-pink-light: #FFB6C1;
+    --color-blue-primary: #00BFFF;
+    --color-blue-light: #87CEEB;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.bg-gradient-pink-blue {
+    background: linear-gradient(135deg, #FF1493 0%, #00BFFF 50%, #87CEEB 100%);
+}
+
+.shadow-pink-glow {
+    box-shadow: 0 20px 60px rgba(255,20,147,0.3);
+}
+
+.btn-pink-blue-custom {
+    background: linear-gradient(135deg, #FF1493, #00BFFF);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 700;
+    border: none;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(255,20,147,0.4);
+}
+
+.btn-pink-blue-custom:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(0,191,255,0.6);
+}
+
+.card-glass {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 25px;
+}
+
+.table-anim tr:hover {
+    background: linear-gradient(45deg, rgba(255,20,147,0.1), rgba(0,191,255,0.1));
+    transform: scale(1.01);
+}
